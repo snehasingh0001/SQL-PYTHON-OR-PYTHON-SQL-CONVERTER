@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SQL ↔ Python Converter</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script>
+    function toggleInputFields() {
+      let manual = document.getElementById('manual').checked;
+      document.getElementById('manualCodeDiv').style.display = manual ? 'block' : 'none';
+      document.getElementById('fileInputDiv').style.display = manual ? 'none' : 'block';
+    }
+  </script>
+</head>
+<body>
+  <div class="form-check form-switch float-end p-3">
+    <input class="form-check-input" type="checkbox" id="darkToggle">
+    <label class="form-check-label" for="darkToggle">🌙 Dark Mode</label>
+  </div>
+
+  <div class="container">
+    <h1>SQL ↔ Python Converter</h1>
+    <form action="/convert" method="POST" enctype="multipart/form-data">
+      <div class="mb-3">
+        <label class="form-label">Conversion Direction:</label>
+        <select name="direction" class="form-select">
+          <option value="sql_to_python">SQL → Python</option>
+          <option value="python_to_sql">Python → SQL</option>
+        </select>
+      </div>
+
+      <div class="mb-3">Input Method:<br>
+        <input type="radio" name="input_type" id="manual" value="manual" checked onclick="toggleInputFields()"> Manual
+        <input type="radio" name="input_type" id="file" value="file" onclick="toggleInputFields()"> File
+      </div>
+
+      <div class="mb-3" id="manualCodeDiv">
+        <textarea name="code" class="form-control" placeholder="Enter your code..."></textarea>
+      </div>
+      <div class="mb-3" id="fileInputDiv" style="display:none;">
+        <input type="file" name="file" class="form-control" accept=".sql,.py">
+      </div>
+
+      <div class="mb-3">
+        <label for="download_format">Download Format:</label>
+        <select name="download_format" id="download_format" class="form-select">
+          <option value="txt">.txt</option>
+          <option value="py">.py</option>
+          <option value="sql">.sql</option>
+          <option value="pdf">.pdf</option>
+          <option value="json">.json</option>
+          <option value="xml">.xml</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary">Convert</button>
+      <a href="/history" class="btn btn-info">View History</a>
+    </form>
+
+    {% if result %}
+      <div class="mt-4">
+        <h3>Converted Output</h3>
+        <pre>{{ result }}</pre>
+        {% if download_file %}
+          <a href="{{ url_for('download_file', filename=download_file) }}" class="btn btn-success">Download</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+
+  <script>
+    const toggle = document.getElementById('darkToggle');
+    toggle.addEventListener('change', () => {
+      document.body.classList.toggle('dark-mode');
+      document.querySelector('.container').classList.toggle('dark-mode');
+      localStorage.setItem('darkMode', toggle.checked);
+    });
+    window.onload = () => {
+      if (localStorage.getItem('darkMode') === 'true') {
+        toggle.checked = true;
+        document.body.classList.add('dark-mode');
+        document.querySelector('.container').classList.add('dark-mode');
+      }
+    };
+  </script>
+</body>
+</html>
